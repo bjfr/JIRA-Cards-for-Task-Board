@@ -16,7 +16,10 @@
  */
 
 body {
-    padding-top: 50px;
+    -webkit-margin-before: 0px;
+    padding-top: 0px;
+    margin-top: -6px;
+    border-top: 0px;
 }
 
 .navbar-brand img {

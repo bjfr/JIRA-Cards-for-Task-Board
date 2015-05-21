@@ -14,9 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with JIRA Cards for Task Board.  If not, see <http://www.gnu.org/licenses/>.
  */
+// Content script
+var initialized;
+
 
 (function () {
     'use strict';
+
+
+    if (initialized) {
+        return;
+    }
 
     /**
      * AJAX request to JIRA server
@@ -41,7 +49,7 @@
                 }
             };
 
-            request.open('GET', window.location.protocol + '//' + window.location.host + url, true);
+            request.open('GET', window.location.protocol + '//' + window.location.host + '/jira' + url, true);
             request.send();
         });
     }
@@ -57,10 +65,12 @@
     // Perform the callback when a message is received from the event page
     chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
+        console.log(request);
+
         // AJAX request for all project
         if (request.action === 'getProjects') {
             getFromJIRA('/rest/api/2/project/').then(function (response) {
-                sendToEventPage(response);
+                sendToEventPage({type: 'project', data: response});
             }, function (Error) {
                 sendToEventPage(Error.message);
             });
@@ -69,7 +79,25 @@
         // AJAX request for all version of the given project
         if (request.action === 'getVersion') {
             getFromJIRA('/rest/api/2/project/' + request.project + '/versions').then(function (response) {
-                sendToEventPage(response);
+                sendToEventPage({type: 'version', data: response});
+            }, function (Error) {
+                sendToEventPage(Error.message);
+            });
+        }
+
+        // AJAX request for all Rapid Views
+        if (request.action === 'getRapidViews') {
+            getFromJIRA('/rest/greenhopper/1.0/rapidviews/list').then(function (response) {
+                sendToEventPage({type: 'rapidview', data: response.views});
+            }, function (Error) {
+                sendToEventPage(Error.message);
+            });
+        }
+
+        // AJAX request for all Sprints
+        if (request.action === 'getSprints') {
+            getFromJIRA('/rest/greenhopper/1.0/sprintquery/' + request.rapidview + '?includeFutureSprints=true&includeHistoricSprints=false').then(function (response) {
+                sendToEventPage({type: 'sprint', data: response.sprints});
             }, function (Error) {
                 sendToEventPage(Error.message);
             });
@@ -77,22 +105,29 @@
 
         // AJAX request for all issue from the given project and version
         if (request.action === 'getIssues') {
-
-            if (request.version !== 'default') {
-                getFromJIRA('/rest/api/2/search?jql=project=' + request.project + '+and+fixVersion=' + request.version + '&&maxResults=500').then(function (response) {
+            if (request.sprint !== 'default') {
+                getFromJIRA('/rest/api/2/search?jql=sprint=' + request.sprint + '+order+by+key&&maxResults=500').then(function (response) {
+                    //http://srv-mmadm-001.kf.local/jira/rest/api/latest/search?jql=project=C-PASS+and+sprint=15
                     sendToEventPage(response);
                 }, function (Error) {
                     sendToEventPage(Error.message);
                 });
+            } else if (request.version !== 'default') {
+                getFromJIRA('/rest/api/2/search?jql=project=' + request.project + '+and+fixVersion=' + request.version + '&&maxResults=500').then(function (response) {
+                     sendToEventPage(response);
+                 }, function (Error) {
+                     sendToEventPage(Error.message);
+                 });
             } else {
+                getFromJIRA('/rest/api/2/search?jql=project=' + request.project + '+and+sprint=15' /*+ request.version*/ + '&&maxResults=500').then(function (response) {
                 getFromJIRA('/rest/api/2/search?jql=project=' + request.project + '&&maxResults=500').then(function (response) {
                     sendToEventPage(response);
                 }, function (Error) {
                     sendToEventPage(Error.message);
                 });
             }
-
         }
-
     });
+
+    initialized = true;
 }());

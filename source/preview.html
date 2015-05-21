@@ -100,6 +100,7 @@
                             <div class="col-sm-12">
                                 <strong>Template:</strong>
                                 <select class="form-control" id="template-type">
+                                    <option value="coop">Coop</option>
                                     <option value="magnetic-board">Magnetic board</option>
                                     <option value="pinboard">Pinboard</option>
                                     <option value="pirin">Pirin</option>
@@ -270,14 +271,12 @@
                             </div>
                             <div class="col-sm-4">
                                 <label class="checkbox-inline" for="show-assignee">
-                                    <input type="checkbox" id="show-assignee" data-class="assignee" value="show"
-                                           checked>assignee
+                                    <input type="checkbox" id="show-assignee" data-class="assignee" value="show" checked>assignee
                                 </label>
                             </div>
                             <div class="col-sm-4">
                                 <label class="checkbox-inline" for="show-priority">
-                                    <input type="checkbox" id="show-priority" data-class="priority" value="show"
-                                           checked>priority
+                                    <input type="checkbox" id="show-priority" data-class="priority" value="show" checked>priority
                                 </label>
                             </div>
                             <div class="col-sm-4">
@@ -341,7 +340,44 @@
 
         <!-- Navigation /end -->
 
+
+
         <!-- TEMPLATES /start -->
+        <!-- Template for COOP - detailed /start -->
+        <template id="coop">
+            <div class="card card-print--visible card--coop l-row" data-clone="card">
+                <!-- Place for magnet /start-->
+                <div class="magnet l-column l-justify-center l-align-center storypoints" data-clone="storypoints"></div>
+                <!-- Place for magnet /end-->
+                <!-- Card header /start-->
+               <div class="l-column l-size--1">
+                    <div class="card__header l-row">
+                        <div class="l-column l-size--4 l-justify-center l-align-center border-right">
+                            <span class="issuetype" data-clone="issuetype"></span>
+                        </div>
+                        <div class="l-column l-size--2 l-justify-center l-align-center border-right">
+                            <span class="key" data-clone="key"></span>
+                        </div>
+                        <div class="l-column l-size--2 l-justify-center l-align-center">
+                            <span class="subtask" data-clone="subtask"></span>
+                        </div>
+                    </div>
+                    <!-- Card header /end-->
+                    <!-- Card body /start-->
+                    <div class="card__body l-column l-size--1">
+                        <span class="summary l-column l-size--4 l-justify-center" data-clone="summary"></span>
+                        <span class="description l-column l-size--4 l-justify-center" data-clone="description"></span>
+                            <span class="assignee l-column l-size--1  l-justify-center"
+                                  data-clone="assignee">Assignee: </span>
+                    </div>
+                    <!-- Card body /end-->
+                    <!--</div>-->
+                    <!-- end:Card body -->
+                </div>
+            </div>
+        </template>
+        <!-- Template for COOP - detailed /end -->
+
         <!-- Template for magnetic board /start -->
         <template id="magnetic-board">
             <div class="card card-print--visible card--magnetic-board l-row" data-clone="card">
@@ -454,9 +490,6 @@
                 <!-- Card header /start-->
                 <div class="l-column l-size--1">
                     <div class="card__header l-row">
-
-                        <div class="optional l-row l-size--1"></div>
-
                         <div class="l-column l-size--1 l-justify-center l-align-center">
                             <span class="tact" data-clone="tact"></span>
                             <span class="priority" data-clone="priority"></span>

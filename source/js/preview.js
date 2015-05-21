@@ -267,7 +267,9 @@
 
                 if (issues[i].fields.issuetype) {
                     var issuetype = clone.querySelector('[data-clone="issuetype"]');
-                    if (issuetype) {
+                    if (issues[i].fields.issuetype.name === 'Sub-task') {
+                        issuetype.innerText += 'Task';
+                    } else if (issuetype) {
                         issuetype.innerText += issues[i].fields.issuetype.name;
                     }
                 }
@@ -276,6 +278,13 @@
                     var timeestimate = clone.querySelector('[data-clone="timeestimate"]');
                     if (timeestimate) {
                         timeestimate.innerText += (issues[i].fields.timeestimate / 1800).toFixed(0) + 'h';
+                    }
+                }
+
+                if (issues[i].fields.customfield_10002) {
+                    var points = clone.querySelector('[data-clone="storypoints"]');
+                    if (points) {
+                        points.innerText += issues[i].fields.customfield_10002;
                     }
                 }
 

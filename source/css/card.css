@@ -111,6 +111,10 @@
     opacity: 0.5;
 }
 
+.card--coop .magnet {
+    min-width: 3cm;
+}
+
 .card--magnetic-board .magnet {
     min-width: 5cm;
 }
@@ -136,6 +140,16 @@
 
 /* Theming
    ========================================================================== */
+
+.border-right {
+    border-right: 0.25rem solid #000;
+}
+
+
+.storypoints {
+    font-size: 80px;
+}
+
 .card {
     border: 0.125rem solid #000;
     font-size: 20px;

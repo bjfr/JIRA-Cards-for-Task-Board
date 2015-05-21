@@ -14,11 +14,14 @@
  * You should have received a copy of the GNU General Public License
  * along with JIRA Cards for Task Board.  If not, see <http://www.gnu.org/licenses/>.
  */
+    // Insert the JS needed for communication with the server
 (function () {
     'use strict';
 
     var projectSelect = document.getElementById('project'),
         versionSelect = document.getElementById('version'),
+        rapidviewSelect = document.getElementById('rapidview'),
+        sprintSelect = document.getElementById('sprint'),
         submitButton = document.getElementById('submit'),
         linkToWebstore = document.getElementById('link-to-webstore');
 
@@ -37,6 +40,15 @@
     chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
         chrome.tabs.sendMessage(tabs[0].id, {
             action: "getProjects"
+        });
+
+        showLoading(true);
+    });
+
+    // Send request to getInfoFromJIRA for all JIRA sprints
+    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, {
+            action: "getRapidViews"
         });
 
         showLoading(true);
@@ -61,13 +73,33 @@
         showLoading(true);
     }, false);
 
+    // Send request to getInfoFromJIRA for all versions of the selected project
+    rapidviewSelect.addEventListener('change', function (event) {
+        if (event.target.value === 'default') {
+            disableSubmitButton(true);
+            return;
+        } else {
+            disableSubmitButton(false);
+        }
+
+        chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
+            chrome.tabs.sendMessage(tabs[0].id, {
+                action: "getSprints",
+                rapidview: rapidviewSelect.value
+            });
+        });
+
+        showLoading(true);
+    }, false);
+
     // Send request to getInfoFromJIRA for all issue from the selected project and version
     submitButton.addEventListener('click', function () {
         chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
             chrome.tabs.sendMessage(tabs[0].id, {
                 action: 'getIssues',
                 version: versionSelect.value,
-                project: projectSelect.value
+                project: projectSelect.value,
+                sprint: sprintSelect.value
             });
         });
 
@@ -86,8 +118,9 @@
      * @param data {Object} the response from the JIRA server
      */
     function onDataReceived(data) {
+        console.log(data);
         // Check if there is an error
-        if (data.indexOf('Error') > -1) {
+        if (data.data.indexOf('Error') > -1) {
             showError(true);
             showLoading(false);
             return;
@@ -97,16 +130,12 @@
         }
 
         // Exit the function if the response is empty
-        if (data[0] === undefined) {
+        if (data.data[0] === undefined) {
             deleteInsertedData('version');
             return;
         }
 
-        if (data[0].self.indexOf('version') > -1) {
-            insertData(data, 'version', true);
-        } else {
-            insertData(data, 'project');
-        }
+        insertData(data.data, data.type, true);
         showLoading(false);
     }
 
@@ -132,11 +161,9 @@
      * @param ID {String} DOM element ID
      */
     function deleteInsertedData(ID) {
-        var element = document.getElementById(ID),
-            elementChildren = element.children;
-
-        for (var i = 1; i < elementChildren.length; i++) {
-            element.removeChild(elementChildren[i]);
+        var element = document.getElementById(ID);
+        while (element.children.length > 1) {
+            element.removeChild(element.children[1]);
         }
     }
 
@@ -156,6 +183,8 @@
         if (deleteChildren === true) {
             deleteInsertedData(ID);
         }
+
+        console.log('insertData: ' + data + ' -> ' + deleteChildren);
 
         for (var i = 0; i < data.length; i++) {
             clone = template.content.cloneNode(true);
