@@ -119,7 +119,6 @@ var initialized;
                      sendToEventPage(Error.message);
                  });
             } else {
-                getFromJIRA('/rest/api/2/search?jql=project=' + request.project + '+and+sprint=15' /*+ request.version*/ + '&&maxResults=500').then(function (response) {
                 getFromJIRA('/rest/api/2/search?jql=project=' + request.project + '&&maxResults=500').then(function (response) {
                     sendToEventPage(response);
                 }, function (Error) {
